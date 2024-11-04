@@ -13,13 +13,13 @@ public class PlayerMovement : MonoBehaviour
     private bool isFacingRight = true; // Kolla vilket h�ll karakt�ren tittar i
     private bool isGrounded = false; // Om vi �r p� marken eller inte
     private Rigidbody2D rb; // Ref till v�r rigidbody2D
-    private Animator animator;
+    
 
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>(); // H�mta v�r Rigidbody 2D
-        animator = GetComponent<Animator>();
+
     }
     private void Update()
     {
@@ -38,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
         {
             Jump();
         }
-        animator.SetBool("Jump", !isGrounded);
+      
  
  
 
@@ -50,7 +50,7 @@ public class PlayerMovement : MonoBehaviour
         Vector2 movement = new Vector2(direction * moveSpeed, rb.velocity.y); // r�kna ut hur vi r�r oss i relation till spelarens velocity
         rb.velocity = movement;
         float absolutSpeed = Mathf.Abs(direction * moveSpeed);
-        animator.SetFloat("Speed", absolutSpeed);
+       
     }
     private void Jump()
     {
