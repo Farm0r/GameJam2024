@@ -18,7 +18,7 @@ public class PlayerLife : MonoBehaviour
         {
             Die();
         }
-    }
+    }                                                                                                                                                   
     private void Die() // Spela death animationen och sätt rigidbody på static så vi inte kan röra oss
     {
         

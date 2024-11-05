@@ -5,86 +5,90 @@ using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f; // Hur snabbt v�r karakt�r f�r r�ra sig
-    public float jumpForce = 5f; // Vilken force hopp knappen kan g�ra
-    public Transform groundCheck; // Kolla om spelaren har r�rt vid marken
-    public float groundCheckRadius = 0.2f; // Inom vilken radie kan vi r�ra marken
+    public float moveSpeed = 5f; // Hur snabbt vår karaktär får röra sig
+    public float jumpForce = 5f; // Vilken kraft hoppet använder
+    public Transform groundCheck; // Kolla om spelaren har rört vid marken
+    public float groundCheckRadius = 0.2f; // Inom vilken radie kan vi röra marken
     public LayerMask groundLayer; // Vilket lager har marken
-    private bool isFacingRight = true; // Kolla vilket h�ll karakt�ren tittar i
-    private bool isGrounded = false; // Om vi �r p� marken eller inte
-    private Rigidbody2D rb; // Ref till v�r rigidbody2D
-    
-     
+    private bool isFacingRight = true; // Kolla vilket håll karaktären tittar åt
+    private bool isGrounded = false; // Om vi är på marken eller inte
+    private Rigidbody2D rb; // Referens till vår Rigidbody2D
+
+    private int jumpCount = 0; // Räkna hopp
+    public int maxJumps = 2; // Antal hopp spelaren kan göra (dubbelhopp = 2)
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody2D>(); // H�mta v�r Rigidbody 2D
-
+        rb = GetComponent<Rigidbody2D>(); // Hämta vår Rigidbody2D
     }
+
     private void Update()
     {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer); // Kolla om spelaren �r p� marken
-        float moveDirection = Input.GetAxis("Horizontal");  // Kolla om vi r�r oss horisontellt
+        // Kolla om spelaren är på marken
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        // Återställ hoppantalet om spelaren är på marken
+        if (isGrounded)
+        {
+            jumpCount = 0;
+        }
+
+        // Få input för horisontell rörelse
+        float moveDirection = Input.GetAxis("Horizontal");
         Move(moveDirection); // Flytta spelaren
-        if (moveDirection > 0 && !isFacingRight) // Flippa spelaren s� den tittar i den riktningen som den r�r sig i
+
+        // Flippa spelaren beroende på rörelseriktning
+        if (moveDirection > 0 && !isFacingRight)
         {
             Flip();
         }
-        else if (moveDirection < 0 && isFacingRight) // Flippa spelaren s� den tittar i den riktningen som den r�r sig i
+        else if (moveDirection < 0 && isFacingRight)
         {
             Flip();
         }
-        if (Input.GetButtonDown("Jump") && isGrounded) // Om vi tycker p� space, s� l�t spelaren hoppa
+
+        // Kolla om spelaren trycker på hoppknappen och kan hoppa
+        if (Input.GetButtonDown("Jump") && (isGrounded || jumpCount < maxJumps))
         {
             Jump();
+            jumpCount++;
         }
-      
- 
- 
-
     }
-   
 
     private void Move(float direction)
     {
-        Vector2 movement = new Vector2(direction * moveSpeed, rb.velocity.y); // r�kna ut hur vi r�r oss i relation till spelarens velocity
+        // Beräkna hur vi rör oss i relation till spelarens velocity
+        Vector2 movement = new Vector2(direction * moveSpeed, rb.velocity.y);
         rb.velocity = movement;
-        float absolutSpeed = Mathf.Abs(direction * moveSpeed);
-       
     }
+
     private void Jump()
     {
-        rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse); // L�gg till vertical force f�r att kunna hoppa
+        // Nollställ spelarens vertikala hastighet innan hopp för mer konsekventa hopp
+        rb.velocity = new Vector2(rb.velocity.x, 0f);
+        rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse); // Lägg till vertikal kraft för att hoppa
     }
+
     private void Flip()
     {
-        isFacingRight = !isFacingRight;  // Flippa player spriten horisontellt
+        isFacingRight = !isFacingRight; // Flippa player spriten horisontellt
         transform.Rotate(0f, 180f, 0f);
         Transform firepoint = transform.Find("FirePoint");
-        if (isFacingRight)
+        if (firepoint != null)
         {
-            firepoint.localPosition = new Vector3(1, firepoint.localPosition.y, firepoint.localPosition.z);
+            firepoint.localPosition = isFacingRight ? new Vector3(1, firepoint.localPosition.y, firepoint.localPosition.z) : new Vector3(2, firepoint.localPosition.y, firepoint.localPosition.z);
         }
-        else
-        {
-            firepoint.localPosition = new Vector3(2, firepoint.localPosition.y, firepoint.localPosition.z);
-        }
-
-
     }
-
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == ("NextLevel"))
+        if (collision.tag == "NextLevel")
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
-        if (collision.tag == ("PreviousLevel"))
+        if (collision.tag == "PreviousLevel")
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
         }
     }
-
 }
-
