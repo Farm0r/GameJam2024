@@ -14,7 +14,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded = false; // Om vi �r p� marken eller inte
     private Rigidbody2D rb; // Ref till v�r rigidbody2D
     
-
+     
 
     private void Start()
     {
