@@ -17,8 +17,14 @@ public class PlayerMovement : MonoBehaviour
     private int jumpCount = 0; // Räkna hopp
     public int maxJumps = 2; // Antal hopp spelaren kan göra (dubbelhopp = 2)
 
+    public AudioSource jumpSound;
+
+    private Animator anim;
+    
+
     private void Start()
     {
+        anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>(); // Hämta vår Rigidbody2D
     }
 
@@ -26,7 +32,7 @@ public class PlayerMovement : MonoBehaviour
     {
         // Kolla om spelaren är på marken
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-
+       
         // Återställ hoppantalet om spelaren är på marken
         if (isGrounded)
         {
@@ -60,6 +66,7 @@ public class PlayerMovement : MonoBehaviour
         // Beräkna hur vi rör oss i relation till spelarens velocity
         Vector2 movement = new Vector2(direction * moveSpeed, rb.velocity.y);
         rb.velocity = movement;
+        anim.SetFloat("Speed", Mathf.Abs(rb.velocity.magnitude));
     }
 
     private void Jump()
@@ -67,6 +74,7 @@ public class PlayerMovement : MonoBehaviour
         // Nollställ spelarens vertikala hastighet innan hopp för mer konsekventa hopp
         rb.velocity = new Vector2(rb.velocity.x, 0f);
         rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse); // Lägg till vertikal kraft för att hoppa
+        jumpSound.Play();
     }
 
     private void Flip()
@@ -82,6 +90,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+
         if (collision.tag == "NextLevel")
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
@@ -91,4 +100,16 @@ public class PlayerMovement : MonoBehaviour
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
         }
     }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        maxJumps = 1000;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        maxJumps = 2;
+    }
+
+
 }
