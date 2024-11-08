@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Spike
   - Flappy Start
+  - Point
   layers:
   - Default
   - TransparentFX
